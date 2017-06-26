@@ -1,0 +1,48 @@
+NAME="virt-top"
+VERSION=1.0.8
+RELEASE=1
+CATEGORY="System"
+SUMMARY="top-like utility for virtualized domains"
+DESCRIPTION="virt-top is a top-like utility for showing stats of virtualized
+domains. Many keys and command line options are the same as for ordinary top.
+It uses libvirt so it capable of showing stats across a variety of different
+virtualization systems."
+HOMEPAGE="https://people.redhat.com/~rjones/virt-top/"
+SRC_URI="${HOMEPAGE}/files/virt-top-${VERSION}.tar.gz"
+PATCH_URI="
+	fedora/0001-Disable-warning-about-immutable-strings-for-OCaml-4..patch
+	fedora/0002-Move-upstream-translations-from-Tranifex-to-Zanata.patch
+	fedora/0003-Update-translations-from-Zanata.patch
+	fedora/0004-build-Add-g-flag-to-ocamlopt.patch
+	fedora/0005-Rename-source-directory-and-files.patch
+	fedora/0006-Enable-same-warnings-as-libguestfs.patch
+	fedora/0007-Remove-x-executable-permission-on-several-source-fil.patch
+	fedora/0008-Refresh-HACKING-file.patch
+	fedora/0009-Fix-po-POTFILES-for-new-location-of-source-files.patch
+	fedora/0010-Update-PO-files.patch
+	fedora/0011-Remove-support-for-OCaml-Calendar-v1.patch
+	fedora/0012-src-Fix-some-comments-which-referred-to-the-old-file.patch
+	fedora/0013-Split-up-huge-Top-module-into-smaller-modules.patch
+	fedora/0014-Move-block_in_bytes-entirely-to-the-presentation-lay.patch
+	fedora/0015-Remove-unused-variable-is_calendar2.patch
+	fedora/0016-Use-virConnectGetAllDomainStats-API-to-collect-domai.patch
+	fedora/0017-chmod-x-COPYING-files.patch
+"
+
+src_compile() {
+	cd ${S}
+	cygautoreconf
+	lndirs
+	cd ${B}
+	cygconf
+	cygmake -j1 opt
+	cygmake -C po
+}
+
+src_install() {
+	cd ${B}
+	newbin src/virt-top.opt virt-top.exe
+	doman virt-top/virt-top.1
+	dodir /usr/share/locale
+	make -C po install PODIR=${D}/usr/share/locale
+}
